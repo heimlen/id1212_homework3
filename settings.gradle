@@ -1,0 +1,3 @@
+rootProject.name = 'homework3'
+
+include 'client', 'server', 'common'
