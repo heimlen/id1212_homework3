@@ -5,19 +5,40 @@ package se.kth.id1212.heimlen.homework3.view;
  */
 public enum UserCommand {
         /**
-         * Start the hangman game
+         * Registers a new user
          */
-        START,
+        REGISTER,
         /**
-         * Make a guess in the hangman game
+         * Unregisters a user
          */
-        GUESS,
+        UNREGISTER,
         /**
-         * Establish a connection to the server. The first parameter is IP address (or host name), the second is port number.
+         * Logs a user in
          */
-        CONNECT,
+        LOGIN,
         /**
-         * quit the game.
+         * Logs a user out
+         */
+        LOGOUT,
+        /**
+         * Downloads a file
+         */
+        DOWNLOAD,
+        /**
+         * Uploads a file
+         */
+        UPLOAD,
+        /**
+         * List available directories.
+         * */
+        LS,
+        /**
+         * Show the help menu
+         */
+        HELP,
+        /**
+         * quit the application.
          */
         QUIT,
-    }
+
+}
