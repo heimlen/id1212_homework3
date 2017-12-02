@@ -21,7 +21,7 @@ public class UserInput {
      */
     UserInput(String userInput) throws UnknownCommandException, BadFormattedInputException {
         this.enteredInput = userInput;
-        parameters = new String[3];
+        parameters = new String[6];
         splitInput(enteredInput);
         parseCommand(userCmd);
     }
@@ -85,5 +85,13 @@ public class UserInput {
 
     String getSecondParam() {
         return parameters[1];
+    }
+
+    String getThirdParam() {
+        return parameters[2];
+    }
+
+    String getFourthParam() {
+        return parameters[3];
     }
 }

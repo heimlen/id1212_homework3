@@ -1,5 +1,7 @@
 package se.kth.id1212.heimlen.homework3.dto;
 
+import java.io.Serializable;
+
 /**
  * Created by heimlen on 2017-11-29.
  */
@@ -13,7 +15,7 @@ public interface FileDTO {
 
     public boolean isPublicAccess();
 
-    public boolean isWritePermission();
+    public boolean isPublicWrite();
 
     public boolean isReadPermission();
 }

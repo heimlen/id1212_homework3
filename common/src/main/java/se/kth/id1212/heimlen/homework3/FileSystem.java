@@ -1,12 +1,13 @@
 package se.kth.id1212.heimlen.homework3;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
-import se.kth.id1212.heimlen.homework3.dto.AccountDTO;
+import se.kth.id1212.heimlen.homework3.dto.CredentialDTO;
 import se.kth.id1212.heimlen.homework3.dto.FileDTO;
 import se.kth.id1212.heimlen.homework3.exceptions.DuplicateUsernameException;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -19,30 +20,30 @@ public interface FileSystem extends Remote{
     static final String FILESYSTEM_NAME_IN_REGISTRY = "filesystem";
 
     /**
-     * Creates an account with the specified username.
-     * @param username the username of the account.
+     * Creates an account with the specified credentials
+     * @param credentialDTO the specified credentials for the account
      */
-    void registerUser(String username, String password) throws RemoteException, MySQLIntegrityConstraintViolationException, Exception, DuplicateUsernameException;
+    long registerUser(CredentialDTO credentialDTO, Listener outputHandler) throws RemoteException, MySQLIntegrityConstraintViolationException, Exception, DuplicateUsernameException;
 
     /**
-     * Unregisters an account given a username
+     * Unregisters an account given credentials
      */
-    void unregisterUser(String username, String password) throws RemoteException;
+    void unregisterUser(CredentialDTO credentialDTO) throws RemoteException;
 
     /**
      * List files in the filesystem
      */
-    List<? extends FileDTO> listFiles() throws RemoteException;
+    void listFiles(long userId) throws RemoteException;
 
     /**
      * Login user
      */
-    Long login(String username, String password) throws Exception;
+    long login(CredentialDTO credentialDTO) throws Exception;
 
     /**
      * Logout user
      */
-    public void logout(String username) throws RemoteException;
+    void logout(long id) throws RemoteException, IllegalAccessException;
 
-    void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isWritePermission, Boolean isReadPermission);
+    void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isWritePermission, Boolean isReadPermission) throws RemoteException, IllegalAccessException;
 }

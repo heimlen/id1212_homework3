@@ -9,21 +9,29 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Starts the filesystem and binds it in the RMI registry.
+ * Starts the filesystem-server and binds it in the RMI registry.
  * */
 public class Server {
     private String filesystemName = FileSystem.FILESYSTEM_NAME_IN_REGISTRY;
 
     public static void main(String[] args) {
+        // Set logging to a more reasonable level
+        Logger log = Logger.getLogger("org.hibernate");
+        log.setLevel(Level.SEVERE);
+
         try {
             Server server = new Server();
             server.startRegistry();
             System.out.println("Filesystem server started.");
             Naming.rebind(Controller.FILESYSTEM_NAME_IN_REGISTRY, new Controller());
-        } catch (RemoteException | MalformedURLException e) {
+        } catch (RemoteException e) {
             System.out.println("Could not connect to file system.");
+        } catch(MalformedURLException e) {
+            System.out.println("malformed url exception");
         }
     }
 
