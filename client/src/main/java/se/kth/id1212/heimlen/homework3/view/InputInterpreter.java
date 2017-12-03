@@ -68,6 +68,7 @@ public class InputInterpreter implements Runnable {
                         break;
                     case REGISTER :
                         userId = fileSystem.registerUser(getCredentials(userInput), outputHandler);
+                        createServerSocket(userId);
                         break;
                     case UNREGISTER :
                         fileSystem.unregisterUser(getCredentials(userInput));
@@ -93,7 +94,6 @@ public class InputInterpreter implements Runnable {
                             throw new LoginException("You have to register and log in prior to downloading files!");
                         }
                         download(userInput.getFirstParam());
-                        outputHandler.printToTerminal("Requested file downloaded!");
                         break;
                 }
             } catch (Exception e) {
@@ -137,7 +137,6 @@ public class InputInterpreter implements Runnable {
     }
 
     private void download(String remoteFilename) throws IOException {
-        Path path = FileTransferHandler.getServerPath(remoteFilename);
         FileDTO file = fileSystem.downloadFile(remoteFilename);
         FileTransferHandler.receiveFileOnServer(socketChannel, remoteFilename, file.getSize());
     }
@@ -162,7 +161,6 @@ public class InputInterpreter implements Runnable {
         @Override
         public void printToTerminal(String output) throws RemoteException {
             msgOut.println(output);
-            msgOut.print(PROMPT);
 
         }
 

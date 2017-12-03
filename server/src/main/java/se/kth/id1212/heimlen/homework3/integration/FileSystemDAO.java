@@ -108,23 +108,6 @@ public class FileSystemDAO {
         }
     }
 
-    public Account login(Account account) throws LoginException, HibernateException {
-        Transaction tx = null;
-        Account fetchedAccount = null;
-        Session session = sessionFactory.openSession();
-        try {
-            tx = session.beginTransaction();
-            Query query = session.createQuery("select account from Account account where username= :username and password= :password");
-            query.setParameter("username", account.getUsername());
-            query.setParameter("password", account.getPassword());
-            fetchedAccount = (Account) query.getSingleResult();
-            tx.commit();
-            return fetchedAccount;
-        } catch (NoResultException e) {
-            throw new LoginException("Wrong username or password");
-        }
-    }
-
     public void upload(Account account, File uploadedFile) {
         Transaction tx = null;
         Session session = sessionFactory.openSession();

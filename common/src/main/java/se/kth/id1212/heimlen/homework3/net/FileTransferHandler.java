@@ -37,7 +37,6 @@ public class FileTransferHandler {
                 buffer.clear();
             }
 
-            System.out.println("File received!");
             channel.shutdownInput();
         }
     }

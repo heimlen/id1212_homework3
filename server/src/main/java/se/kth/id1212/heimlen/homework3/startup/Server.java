@@ -2,6 +2,7 @@ package se.kth.id1212.heimlen.homework3.startup;
 
 import se.kth.id1212.heimlen.homework3.FileSystem;
 import se.kth.id1212.heimlen.homework3.controller.Controller;
+import se.kth.id1212.heimlen.homework3.net.SocketListener;
 
 import java.net.MalformedURLException;
 import java.rmi.AccessException;
@@ -25,9 +26,11 @@ public class Server {
 
         try {
             Server server = new Server();
+            Controller controller = new Controller();
             server.startRegistry();
             System.out.println("Filesystem server started.");
-            Naming.rebind(Controller.FILESYSTEM_NAME_IN_REGISTRY, new Controller());
+            Naming.rebind(Controller.FILESYSTEM_NAME_IN_REGISTRY, controller);
+            server.startSocketListener(controller);
         } catch (RemoteException e) {
             System.out.println("Could not connect to file system.");
         } catch(MalformedURLException e) {
@@ -43,5 +46,9 @@ public class Server {
         } catch (RemoteException e) {
             LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
         }
+    }
+
+    private void startSocketListener(Controller controller) {
+        new SocketListener(controller);
     }
 }

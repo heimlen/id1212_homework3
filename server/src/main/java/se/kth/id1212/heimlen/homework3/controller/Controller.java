@@ -85,12 +85,6 @@ public class Controller extends UnicastRemoteObject implements FileSystem {
         return accountId;
     }
 
-
-    @Override
-    public void logout(long id) throws RemoteException, IllegalAccessException {
-        AccountManager account = auth(id);
-    }
-
     @Override
     public void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isPublicWritePermission, Boolean isPublicReadPermission) throws RemoteException, IllegalAccessException {
         AccountManager account = auth(userId);
@@ -128,8 +122,6 @@ public class Controller extends UnicastRemoteObject implements FileSystem {
         CompletableFuture.runAsync(() -> {
             try {
                 FileTransferHandler.receiveFileOnServer(account.getSocketChannel(), file.getName(), file.getSize());
-
-                account.printToTerminal("Your file has been uploaded!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -142,9 +134,9 @@ public class Controller extends UnicastRemoteObject implements FileSystem {
 
     /**
      * Attach a socket to a specific account
-     * @param accountId
-     * @param socketChannel
-     * @throws RemoteException
+     * @param accountId id of account
+     * @param socketChannel socketchannel to connect over
+     * @throws RemoteException if RMI fails
      */
     public void attachSocketToUser(long accountId, SocketChannel socketChannel) throws RemoteException {
         accounts.get(accountId).attachSocketToAccount(socketChannel);

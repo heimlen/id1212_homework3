@@ -49,11 +49,6 @@ public interface FileSystem extends Remote{
     long login(CredentialDTO credentialDTO) throws Exception;
 
     /**
-     * Logout user
-     */
-    void logout(long id) throws RemoteException, IllegalAccessException;
-
-    /**
      * Upload a file to the filesystem
      * @param localFilename the name of the file on the client
      * @param userId the id representing the user/account that wants to upload
