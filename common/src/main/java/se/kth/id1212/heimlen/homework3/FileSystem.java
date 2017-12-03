@@ -1,6 +1,7 @@
 package se.kth.id1212.heimlen.homework3;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import com.sun.org.apache.regexp.internal.RE;
 import se.kth.id1212.heimlen.homework3.dto.CredentialDTO;
 import se.kth.id1212.heimlen.homework3.dto.FileDTO;
 import se.kth.id1212.heimlen.homework3.exceptions.DuplicateUsernameException;
@@ -36,6 +37,13 @@ public interface FileSystem extends Remote{
     void listFiles(long userId) throws RemoteException;
 
     /**
+     * Download a file from the filesystem
+     * @param filename the name of the file
+     * @return the file
+     */
+    FileDTO downloadFile(String filename) throws RemoteException;
+
+    /**
      * Login user
      */
     long login(CredentialDTO credentialDTO) throws Exception;
@@ -45,5 +53,16 @@ public interface FileSystem extends Remote{
      */
     void logout(long id) throws RemoteException, IllegalAccessException;
 
-    void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isWritePermission, Boolean isReadPermission) throws RemoteException, IllegalAccessException;
+    /**
+     * Upload a file to the filesystem
+     * @param localFilename the name of the file on the client
+     * @param userId the id representing the user/account that wants to upload
+     * @param size the size of the file
+     * @param isPublicAccess is it supposed to have public access?
+     * @param isPublicWritePermission does it have public write permission?
+     * @param isPublicReadPermission does it have public read permission?
+     * @throws RemoteException if something fails with the RMI
+     * @throws IllegalAccessException if a user tries to upload a file without being logged in
+     */
+    void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isPublicWritePermission, Boolean isPublicReadPermission) throws RemoteException, IllegalAccessException;
 }

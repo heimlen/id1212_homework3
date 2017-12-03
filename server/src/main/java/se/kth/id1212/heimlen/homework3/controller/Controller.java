@@ -4,17 +4,22 @@ import org.hibernate.HibernateException;
 import se.kth.id1212.heimlen.homework3.FileSystem;
 import se.kth.id1212.heimlen.homework3.Listener;
 import se.kth.id1212.heimlen.homework3.dto.CredentialDTO;
+import se.kth.id1212.heimlen.homework3.dto.FileDTO;
 import se.kth.id1212.heimlen.homework3.exceptions.DuplicateUsernameException;
 import se.kth.id1212.heimlen.homework3.integration.FileSystemDAO;
 import se.kth.id1212.heimlen.homework3.model.Account;
 import se.kth.id1212.heimlen.homework3.model.AccountManager;
 import se.kth.id1212.heimlen.homework3.model.File;
+import se.kth.id1212.heimlen.homework3.net.FileTransferHandler;
 
 import javax.persistence.NoResultException;
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -87,24 +92,23 @@ public class Controller extends UnicastRemoteObject implements FileSystem {
     }
 
     @Override
-    public void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isWritePermission, Boolean isReadPermission) throws RemoteException, IllegalAccessException {
-        AccountManager accountManager = auth(userId);
-        Account accountConnectedWithProvidedId = accountManager.getAccount();
-        File uploadedFile = new File(localFilename, size, accountConnectedWithProvidedId, isPublicAccess, isWritePermission, isReadPermission);
+    public void upload(String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isPublicWritePermission, Boolean isPublicReadPermission) throws RemoteException, IllegalAccessException {
+        AccountManager account = auth(userId);
+        Account accountConnectedWithProvidedId = account.getAccount();
+        File uploadedFile = new File(localFilename, size, accountConnectedWithProvidedId, isPublicAccess, isPublicWritePermission, isPublicReadPermission);
         try {
             File fileInDatabase = fileSystemDB.getFileByName(localFilename);
 
             if (accountConnectedWithProvidedId == fileInDatabase.getOwner() ){
                 fileSystemDB.updateFile(uploadedFile);
-                //TODO physical upload of file -- uploadFile(user, fileDTO);
+                uploadFile(account, uploadedFile);
             } else if (!fileInDatabase.isPublicAccess()) {
                 throw new IllegalAccessException("You're not the owner and the file is not public!");
             } else if (!fileInDatabase.isPublicWrite()) {
                 throw new IllegalAccessException("You're not the owner of the file and the file is not writable!");
             } else {
                 fileSystemDB.updateFileSize(uploadedFile);
-                //TODO physical upload of file -- uploadFile(user, fileDTO);
-
+                uploadFile(account, uploadedFile);
                 String alertMsg = String.format("The user \"%s\" has updated your public writable file: \"%s\"",
                         accountConnectedWithProvidedId.getUsername(),
                         fileInDatabase.getName());
@@ -116,20 +120,33 @@ public class Controller extends UnicastRemoteObject implements FileSystem {
         } catch (NoResultException e) {
             // File doesn't exist and we're allowed to do whatever
             fileSystemDB.upload(accountConnectedWithProvidedId, uploadedFile);
-            //TODO physical upload of file -- uploadFile(user, fileDTO);
+            uploadFile(account, uploadedFile);
         }
     }
 
-    /*private void alertListeners(String message) throws RemoteException {
+    private void uploadFile(AccountManager account, FileDTO file) {
         CompletableFuture.runAsync(() -> {
-            listeners.forEach(accountManager -> {
-                try {
+            try {
+                FileTransferHandler.receiveFileOnServer(account.getSocketChannel(), file.getName(), file.getSize());
 
-                    accountManager.printToTerminal(message);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
-            });
+                account.printToTerminal("Your file has been uploaded!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
-    }*/
+    }
+
+    public FileDTO downloadFile(String filename) {
+        return fileSystemDB.getFileByName(filename);
+    }
+
+    /**
+     * Attach a socket to a specific account
+     * @param accountId
+     * @param socketChannel
+     * @throws RemoteException
+     */
+    public void attachSocketToUser(long accountId, SocketChannel socketChannel) throws RemoteException {
+        accounts.get(accountId).attachSocketToAccount(socketChannel);
+    }
 }

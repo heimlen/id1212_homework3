@@ -22,7 +22,7 @@ public class FileTransferHandler {
      * @param filename The name of the file to be uploaded.
      * @throws IOException If something goes wrong with the file transfer.
      */
-    public static void receiveFile(SocketChannel channel, String filename) throws IOException {
+    public static void receiveFileOnServer(SocketChannel channel, String filename, long size) throws IOException {
         Path path = getServerPath(filename);
 
         try (FileChannel fileChannel = FileChannel.open(path,
@@ -43,13 +43,13 @@ public class FileTransferHandler {
     }
 
     /**
-     * Handles sending of a file over a TCP socket.
+     * Handles sending of a file over a TCP socket from client.
      *
      * @param channel The channel to receive the file from.
      * @param filename The file to send.
      * @throws IOException If something goes wrong with the file transfer.
      */
-    public static void sendFile(SocketChannel channel, String filename) throws IOException {
+    public static void sendFileFromClient(SocketChannel channel, String filename) throws IOException {
         Path path = getClientPath(filename);
 
         try (FileChannel fileChannel = FileChannel.open(path)) {

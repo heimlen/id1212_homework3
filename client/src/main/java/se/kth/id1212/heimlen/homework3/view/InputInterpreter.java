@@ -1,6 +1,7 @@
 package se.kth.id1212.heimlen.homework3.view;
 
 import se.kth.id1212.heimlen.homework3.constants.Constants;
+import se.kth.id1212.heimlen.homework3.dto.AccountSocketIDDTO;
 import se.kth.id1212.heimlen.homework3.dto.CredentialDTO;
 import se.kth.id1212.heimlen.homework3.dto.FileDTO;
 import se.kth.id1212.heimlen.homework3.FileSystem;
@@ -67,19 +68,16 @@ public class InputInterpreter implements Runnable {
                         break;
                     case REGISTER :
                         userId = fileSystem.registerUser(getCredentials(userInput), outputHandler);
-                        //userId = fileSystem.registerUser(userInput.getFirstParam(), userInput.getSecondParam(), outputHandler);
-                        //outputHandler.printToTerminal("Successfully registered account.");
                         break;
                     case UNREGISTER :
                         fileSystem.unregisterUser(getCredentials(userInput));
-                        //fileSystem.unregisterUser(userInput.getFirstParam(), userInput.getSecondParam());
                         break;
                     case LS :
                         fileSystem.listFiles(userId);
                         break;
                     case LOGIN :
                         userId = fileSystem.login(getCredentials(userInput));
-                        //createServerSocket(userId);
+                        createServerSocket(userId);
                         break;
                     case LOGOUT :
                         userId = 0;
@@ -94,7 +92,8 @@ public class InputInterpreter implements Runnable {
                         if(userId == 0) {
                             throw new LoginException("You have to register and log in prior to downloading files!");
                         }
-                    //    fileSystem.download();
+                        download(userInput.getFirstParam());
+                        outputHandler.printToTerminal("Requested file downloaded!");
                         break;
                 }
             } catch (Exception e) {
@@ -134,19 +133,25 @@ public class InputInterpreter implements Runnable {
             }
         }
         fileSystem.upload(localFilename, userId, size, publicAccess, publicWritePermission, publicReadPermission);
-        //.sendFile();
+        FileTransferHandler.sendFileFromClient(socketChannel, localFilename);
     }
 
-    /*private void createServerSocket(long userId) throws IOException {
+    private void download(String remoteFilename) throws IOException {
+        Path path = FileTransferHandler.getServerPath(remoteFilename);
+        FileDTO file = fileSystem.downloadFile(remoteFilename);
+        FileTransferHandler.receiveFileOnServer(socketChannel, remoteFilename, file.getSize());
+    }
+
+    private void createServerSocket(long userId) throws IOException {
         socketChannel = SocketChannel.open();
         socketChannel.connect(new InetSocketAddress(Constants.SOCKET_ADDRESS, Constants.SOCKET_PORT));
 
         ObjectOutputStream output = new ObjectOutputStream(socketChannel.socket().getOutputStream());
 
-        output.writeObject(new SocketIdentifierDTO(userId));
+        output.writeObject(new AccountSocketIDDTO(userId));
         output.flush();
         output.reset();
-    }*/
+    }
 
 
     public class OutputHandler extends UnicastRemoteObject implements se.kth.id1212.heimlen.homework3.Listener {

@@ -5,7 +5,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import se.kth.id1212.heimlen.homework3.dto.FileDTO;
 import se.kth.id1212.heimlen.homework3.exceptions.DuplicateUsernameException;
 import se.kth.id1212.heimlen.homework3.model.Account;
 import se.kth.id1212.heimlen.homework3.model.File;
@@ -54,12 +53,7 @@ public class FileSystemDAO {
             fetchedAccount = (Account) query.getSingleResult();
             tx.commit();
             return fetchedAccount;
-        }/* catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
-        } */catch (Exception e) {
+        } catch (Exception e) {
             throw new DuplicateUsernameException("This username already exists, please try another one.");
         } finally {
             session.close();
@@ -99,15 +93,7 @@ public class FileSystemDAO {
      * @param account the logged in and registered account.
      * @return
      */
-    /*public List<File> listFiles(Account account) {
-        Transaction tx = null;
-        try (Session session = sessionFactory.openSession()) {
-            tx = session.beginTransaction();
-            Query query = session.createQuery("select file from File file where owner= :id or publicAccess= :pa");
-            query.setParameter("id", account.getId());
-            query.setParameter("pa", true);
-        }
-    }*/
+
     @SuppressWarnings("unchecked")
     public List<File> listFiles(Account account) {
         Transaction tx = null;
@@ -136,24 +122,14 @@ public class FileSystemDAO {
             return fetchedAccount;
         } catch (NoResultException e) {
             throw new LoginException("Wrong username or password");
-        }/* catch (HibernateException e) {
-            if (tx != null) {
-                tx.rollback();
-            }
-            e.printStackTrace();
-        }*/
+        }
     }
 
-    public void upload(Account account, File uploadedFile/*String localFilename, long userId, long size, Boolean isPublicAccess, Boolean isWritePermission, Boolean isReadPermission*/) {
+    public void upload(Account account, File uploadedFile) {
         Transaction tx = null;
-        //Account fetchedAccount = null;
         Session session = sessionFactory.openSession();
         try {
             tx = session.beginTransaction();
-            /*Query query = session.createQuery("select account from Account account where id= :userId");
-            query.setParameter("userId", uploadedFile.getOwner().getId());
-            Account fetchedAccount = (Account) query.getSingleResult();
-            uploadedFile.setOwner(fetchedAccount);*/
             uploadedFile.setOwner(account);
             session.save(uploadedFile);
             tx.commit();
