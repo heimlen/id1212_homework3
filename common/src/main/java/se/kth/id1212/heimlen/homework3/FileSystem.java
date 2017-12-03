@@ -39,9 +39,10 @@ public interface FileSystem extends Remote{
     /**
      * Download a file from the filesystem
      * @param filename the name of the file
+     * @param userId the id of the user that wants to download the file
      * @return the file
      */
-    FileDTO downloadFile(String filename) throws RemoteException;
+    FileDTO downloadFile(String filename, long userId) throws RemoteException, IllegalAccessException;
 
     /**
      * Login user

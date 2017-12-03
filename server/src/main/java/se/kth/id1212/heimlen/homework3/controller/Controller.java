@@ -128,8 +128,27 @@ public class Controller extends UnicastRemoteObject implements FileSystem {
         });
     }
 
-    public FileDTO downloadFile(String filename) {
-        return fileSystemDB.getFileByName(filename);
+    public FileDTO downloadFile(String filename, long accountId) throws IllegalAccessException, RemoteException {
+        AccountManager account = auth(accountId);
+        Account accountConnectedWithProvidedId = account.getAccount();
+        File fileInDatabase = fileSystemDB.getFileByName(filename);
+        if (accountConnectedWithProvidedId != fileInDatabase.getOwner() ) {
+            if (!fileInDatabase.isPublicAccess()) {
+                throw new IllegalAccessException("You're not the owner and the file is not public!");
+            } else if (!fileInDatabase.isReadPermission()) {
+                throw new IllegalAccessException("You're not the owner of the file and the file is not readable!");
+            } else {
+                String alertMsg = String.format("The user \"%s\" has downloaded your public writable file: \"%s\"",
+                        accountConnectedWithProvidedId.getUsername(),
+                        fileInDatabase.getName());
+
+                long fileOwnerId = fileInDatabase.getOwner().getId();
+                AccountManager fileOwner = accounts.get(fileOwnerId);
+                fileOwner.printToTerminal(alertMsg);
+                return fileInDatabase;
+            }
+        } else
+            return fileInDatabase;
     }
 
     /**

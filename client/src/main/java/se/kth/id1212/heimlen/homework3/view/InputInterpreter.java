@@ -93,7 +93,7 @@ public class InputInterpreter implements Runnable {
                         if(userId == 0) {
                             throw new LoginException("You have to register and log in prior to downloading files!");
                         }
-                        download(userInput.getFirstParam());
+                        download(userInput.getFirstParam(), userId);
                         break;
                 }
             } catch (Exception e) {
@@ -136,8 +136,8 @@ public class InputInterpreter implements Runnable {
         FileTransferHandler.sendFileFromClient(socketChannel, localFilename);
     }
 
-    private void download(String remoteFilename) throws IOException {
-        FileDTO file = fileSystem.downloadFile(remoteFilename);
+    private void download(String remoteFilename, long userId) throws IOException, IllegalAccessException {
+        FileDTO file = fileSystem.downloadFile(remoteFilename, userId);
         FileTransferHandler.receiveFileOnServer(socketChannel, remoteFilename, file.getSize());
     }
 
